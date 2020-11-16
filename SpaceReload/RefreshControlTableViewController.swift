@@ -26,7 +26,7 @@ class RefreshControlTableViewController: UITableViewController {
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if let refreshControl = self.refreshControl as? RiveRefreshControl {
-            let offset = scrollView.contentOffset.y + topbarHeight
+            let offset = scrollView.contentOffset.y
             refreshControl.pulledExtent = offset
         }
     }

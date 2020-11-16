@@ -10,16 +10,15 @@ import RiveRuntime
 
 class RefreshView: UIView {
 
-    fileprivate var resourceName: String = "space_reload"
-    fileprivate var artboard: RiveArtboard?
-    fileprivate var riveView: RiveView?
-    fileprivate var displayLink: CADisplayLink?
-    fileprivate var lastTime: CFTimeInterval = 0
+    private var resourceName: String = "space_reload"
+    private var artboard: RiveArtboard?
+    private var displayLink: CADisplayLink?
+    private var lastTime: CFTimeInterval = 0
     
-    fileprivate var idleInstance: RiveLinearAnimationInstance?
-    fileprivate var pullInstance: RiveLinearAnimationInstance?
-    fileprivate var triggerInstance: RiveLinearAnimationInstance?
-    fileprivate var loadingInstance: RiveLinearAnimationInstance?
+    private var idle: RiveLinearAnimationInstance?
+    private var pull: RiveLinearAnimationInstance?
+    private var trigger: RiveLinearAnimationInstance?
+    private var loading: RiveLinearAnimationInstance?
     
     let frameHeight: CGFloat
     var isRefreshing: Bool = false
@@ -38,9 +37,7 @@ class RefreshView: UIView {
     required init(frameHeight: CGFloat) {
         self.frameHeight = frameHeight
         super.init(frame: .zero)
-        setupView()
-        setupLayout()
-        startRive()
+        initRive()
     }
     
     private override init(frame: CGRect) {
@@ -52,25 +49,20 @@ class RefreshView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupView() {
-        riveView = RiveView()
-        if let riveView = riveView {
-            addSubview(riveView)
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext(),
+              let artboard = self.artboard else {
+            return
         }
+        let renderer = RiveRenderer(context: context);
+        renderer.align(with: rect,
+                       withContentRect: artboard.bounds(),
+                       with: .Center,
+                       with: .Cover)
+        artboard.draw(renderer)
     }
     
-    func setupLayout() {
-        guard let riveView = riveView else { return }
-        riveView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            riveView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            riveView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            riveView.topAnchor.constraint(equalTo: topAnchor),
-            riveView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
-    }
-    
-    func startRive() {
+    func initRive() {
         guard let url = Bundle.main.url(forResource: resourceName, withExtension: "riv") else {
             fatalError("Failed to locate \(resourceName) in bundle.")
         }
@@ -93,28 +85,24 @@ class RefreshView: UIView {
             
             let artboard = riveFile.artboard()
             
-            self.artboard = artboard
-            riveView?.updateArtboard(artboard)
-            
             if (artboard.animationCount() == 0) {
                 fatalError("No animations in the file.")
             }
                         
-            // Fetch two animations and advance the artboard
             let idleAnimation = artboard.animation(at: 0)
-            self.idleInstance = idleAnimation.instance()
+            self.idle = idleAnimation.instance()
             
             let pullAnimation = artboard.animation(at: 1)
-            self.pullInstance = pullAnimation.instance()
-            self.pullInstance?.setTime(1)
+            self.pull = pullAnimation.instance()
+            self.pull?.setTime(1)
             
             let triggerAnimation = artboard.animation(at: 2)
-            self.triggerInstance = triggerAnimation.instance()
+            self.trigger = triggerAnimation.instance()
             
             let loadingAnimation = artboard.animation(at: 3)
-            self.loadingInstance = loadingAnimation.instance()
+            self.loading = loadingAnimation.instance()
 
-            artboard.advance(by: 0)
+            self.artboard = artboard
             
             // Run the looping timer
             initTimer()
@@ -123,7 +111,7 @@ class RefreshView: UIView {
     
     // Starts the animation timer
     func initTimer() {
-        displayLink = CADisplayLink(target: self, selector: #selector(tick));
+        displayLink = CADisplayLink(target: self, selector: #selector(apply));
         displayLink?.add(to: .main, forMode: .common)
     }
     
@@ -133,76 +121,63 @@ class RefreshView: UIView {
     }
     
     // Animates a frame
-    @objc func tick() {
-        guard let displayLink = displayLink, let artboard = artboard else {
-            // Something's gone wrong, clean up and bug out
+    @objc func apply() {
+        
+        guard let displayLink = displayLink,
+              let artboard = artboard else {
             removeTimer()
             return
         }
         
         let timestamp = displayLink.timestamp
-        // last time needs to be set on the first tick
+        
         if (lastTime == 0) {
             lastTime = timestamp
         }
+        
         // Calculate the time elapsed between ticks
         let elapsedTime = timestamp - lastTime
         lastTime = timestamp;
         
-        guard let idleInstance = idleInstance,
-              let pullInstance = pullInstance,
-              let triggerInstance = triggerInstance,
-              let loadingInstance = loadingInstance else {
-            return
+        let idleTime = idle?.time() ?? 0
+        idle?.animation().apply(idleTime, to: artboard)
+        idle?.advance(by: elapsedTime)
+        
+        if trigger?.time() == 0 {
+            let pos = Float(_pulledExtent / frameHeight)
+            let pullTime = pull?.time() ?? 1
+            pull?.animation().apply(pullTime * pos, to: artboard)
         }
-        
-        let idleTime = idleInstance.time()
-        idleInstance.animation().apply(idleTime, to: artboard)
-        idleInstance.advance(by: elapsedTime)
-        
-        if !isRefreshing {
-            let animationPosition = Float(_pulledExtent / frameHeight)
-            let pullTime = pullInstance.time() * animationPosition
-            pullInstance.animation().apply(pullTime, to: artboard)
-            pullInstance.advance(by: elapsedTime)
             
-            // Rocket reload seems to need this or else doesnt display correctly on second refresh
-            let triggerTime = triggerInstance.time()
-            triggerInstance.animation().apply(triggerTime, to: artboard)
-            
-        } else {
-            let triggerTime = triggerInstance.time()
-            triggerInstance.animation().apply(triggerTime, to: artboard)
-            triggerInstance.advance(by: elapsedTime)
-            
-            let triggerAnimation = triggerInstance.animation()
-            if triggerTime >= Float(triggerAnimation.workEnd() / triggerAnimation.fps()) {
-                let loadingTime = loadingInstance.time()
-                loadingInstance.animation().apply(loadingTime, to: artboard)
-                loadingInstance.advance(by: elapsedTime)
+        if isRefreshing {
+            let triggerTime = trigger?.time() ?? 0
+            trigger?.animation().apply(triggerTime, to: artboard)
+            trigger?.advance(by: elapsedTime)
+            if trigger?.hasCompleted ?? false {
+                let loadingTime = loading?.time() ?? 0
+                loading?.animation().apply(loadingTime, to: artboard)
+                loading?.advance(by: elapsedTime)
             }
         }
         
         artboard.advance(by: elapsedTime)
-        
-        // Trigger a redraw
-        riveView?.setNeedsDisplay()
+        setNeedsDisplay()
     }
     
     func reset() {
-        guard let artboard = artboard,
-              let triggerInstance = triggerInstance,
-              let loadingInstance = loadingInstance else {
-            return
+        loading?.setTime(0)
+        trigger?.setTime(0)
+        if let artboard = artboard {
+            loading?.animation().apply(0, to: artboard)
+            trigger?.animation().apply(0, to: artboard)
         }
-        
-        triggerInstance.setTime(0)
-        loadingInstance.setTime(0)
-        
-        let triggerTime = triggerInstance.time()
-        triggerInstance.animation().apply(triggerTime, to: artboard)
-        
-        let loadingTime = loadingInstance.time()
-        loadingInstance.animation().apply(loadingTime, to: artboard)
+    }
+}
+
+extension RiveLinearAnimationInstance {
+    var hasCompleted: Bool {
+        let anim = self.animation()
+        let time = self.time()
+        return time >= Float(anim.workEnd() / anim.fps())
     }
 }

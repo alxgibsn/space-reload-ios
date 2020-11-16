@@ -17,7 +17,6 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshView = RefreshView(frameHeight: refreshViewExtent)
-        refreshView?.backgroundColor = UIColor.systemPink
         let containerView = UIView()
         containerView.addSubview(refreshView!)
         tableView.backgroundView = containerView
@@ -54,7 +53,7 @@ class TableViewController: UITableViewController {
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -62,18 +61,17 @@ class TableViewController: UITableViewController {
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offset = scrollView.contentOffset.y + topbarHeight
+        let offset = scrollView.contentOffset.y
         refreshView?.isPaused = offset >= 0
         refreshView?.pulledExtent = offset
         refreshView?.frame = CGRect(
-            x: 0,
-            y: topbarHeight,
+            x: 0, y: 0,
             width: view.bounds.width,
             height: -offset)
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if scrollView.contentOffset.y + topbarHeight < -refreshTriggerPullDistance {
+        if scrollView.contentOffset.y < -refreshTriggerPullDistance {
             beginRefreshing()
         }
     }
@@ -85,12 +83,5 @@ class TableViewController: UITableViewController {
             refreshView?.reset()
             pendingReset = false
         }
-    }
-}
-
-extension UIViewController {
-    var topbarHeight: CGFloat {
-        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
-            (self.navigationController?.navigationBar.frame.height ?? 0.0)
     }
 }
