@@ -14,10 +14,11 @@
 		FA3B277A253EF6C100935588 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FA3B2778253EF6C100935588 /* LaunchScreen.storyboard */; };
 		FA3B278F253EF77A00935588 /* RiveRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA3B2788253EF77100935588 /* RiveRuntime.framework */; };
 		FA3B2790253EF77A00935588 /* RiveRuntime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA3B2788253EF77100935588 /* RiveRuntime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FA3B279D253F036300935588 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3B279C253F036300935588 /* TableViewController.swift */; };
 		FA4AD3D8253F6468002490AE /* rocket_reload.riv in Resources */ = {isa = PBXBuildFile; fileRef = FA4AD3D6253F6468002490AE /* rocket_reload.riv */; };
 		FA4AD3D9253F6468002490AE /* space_reload.riv in Resources */ = {isa = PBXBuildFile; fileRef = FA4AD3D7253F6468002490AE /* space_reload.riv */; };
-		FAC86D7C2541AA7D00BDA1D5 /* RefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC86D7B2541AA7D00BDA1D5 /* RefreshView.swift */; };
+		FACB6D34256FDFFC0094E6B8 /* RefreshControlTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACB6D31256FDFFC0094E6B8 /* RefreshControlTableViewController.swift */; };
+		FACB6D35256FDFFC0094E6B8 /* RiveRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACB6D32256FDFFC0094E6B8 /* RiveRefreshControl.swift */; };
+		FACB6D36256FDFFC0094E6B8 /* RiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACB6D33256FDFFC0094E6B8 /* RiveView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,10 +61,11 @@
 		FA3B2779253EF6C100935588 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FA3B277B253EF6C100935588 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FA3B2782253EF77000935588 /* RiveRuntime.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RiveRuntime.xcodeproj; path = "../../../../Development/rive-ios/RiveRuntime.xcodeproj"; sourceTree = "<group>"; };
-		FA3B279C253F036300935588 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		FA4AD3D6253F6468002490AE /* rocket_reload.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = rocket_reload.riv; sourceTree = "<group>"; };
 		FA4AD3D7253F6468002490AE /* space_reload.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = space_reload.riv; sourceTree = "<group>"; };
-		FAC86D7B2541AA7D00BDA1D5 /* RefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshView.swift; sourceTree = "<group>"; };
+		FACB6D31256FDFFC0094E6B8 /* RefreshControlTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshControlTableViewController.swift; sourceTree = "<group>"; };
+		FACB6D32256FDFFC0094E6B8 /* RiveRefreshControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RiveRefreshControl.swift; sourceTree = "<group>"; };
+		FACB6D33256FDFFC0094E6B8 /* RiveView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RiveView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,8 +105,9 @@
 				FA3B276D253EF6C100935588 /* AppDelegate.swift */,
 				FA3B276F253EF6C100935588 /* SceneDelegate.swift */,
 				FA3B2773253EF6C100935588 /* Main.storyboard */,
-				FA3B279C253F036300935588 /* TableViewController.swift */,
-				FAC86D7B2541AA7D00BDA1D5 /* RefreshView.swift */,
+				FACB6D31256FDFFC0094E6B8 /* RefreshControlTableViewController.swift */,
+				FACB6D32256FDFFC0094E6B8 /* RiveRefreshControl.swift */,
+				FACB6D33256FDFFC0094E6B8 /* RiveView.swift */,
 				FA3B2776253EF6C100935588 /* Assets.xcassets */,
 				FA3B2778253EF6C100935588 /* LaunchScreen.storyboard */,
 				FA3B277B253EF6C100935588 /* Info.plist */,
@@ -233,10 +236,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAC86D7C2541AA7D00BDA1D5 /* RefreshView.swift in Sources */,
-				FA3B279D253F036300935588 /* TableViewController.swift in Sources */,
+				FACB6D36256FDFFC0094E6B8 /* RiveView.swift in Sources */,
 				FA3B276E253EF6C100935588 /* AppDelegate.swift in Sources */,
+				FACB6D34256FDFFC0094E6B8 /* RefreshControlTableViewController.swift in Sources */,
 				FA3B2770253EF6C100935588 /* SceneDelegate.swift in Sources */,
+				FACB6D35256FDFFC0094E6B8 /* RiveRefreshControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
